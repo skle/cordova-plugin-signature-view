@@ -14,6 +14,15 @@ pen or fingers, but the results won't be as accurate.
 In principle, you could use the plugin as a generic drawing/sketch
 capturing system, but it provides no drawing "tools" of any kind.
 
+Installation
+------------
+
+Simply add the plugin using the full path to the git repository:
+
+	cordova plugin add https://bitbucket.org/codeyellow/cordova-plugin-signature-view.git
+
+This should be done from the root directory of your Cordova project.
+
 Usage
 -----
 
