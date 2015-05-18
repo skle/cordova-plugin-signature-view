@@ -29,7 +29,10 @@ Usage
 This extension is a little strange in that it installs a file called
 www/js/signature-view.js directly into your application.  You can load
 this and it will provide the AMD module `cordova.signature-view`.  If
-you're not using an AMD loader, it will define a global SignatureView
+you want to test from your browser, try loading it from
+`js/signature-view.js` and if that fails try loading from
+`../plugins/nl.codeyellow.signature/www/js/signature-view.js`.
+If you're not using an AMD loader, it will define a global SignatureView
 variable (a property on "window").  It provides only one method, with
 the following signature (no pun intended):
 

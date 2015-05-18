@@ -34,7 +34,7 @@
   </info>
 
   <!-- Using a relative target is a dirty stinking hack, but it works! -->
-  <asset src="www/signature-view.js" target="../../../../www/js/signature-view.js" />
+  <asset src="www/signature-view.js" target="js/signature-view.js" />
 
   <dependency id="org.apache.cordova.device" />
   
