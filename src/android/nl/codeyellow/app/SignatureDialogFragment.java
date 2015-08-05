@@ -14,9 +14,12 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.TypedValue;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.widget.RelativeLayout;
@@ -34,6 +37,7 @@ public class SignatureDialogFragment extends DialogFragment {
 	protected CallbackContext callbackContext;
 	protected CharSequence dialogTitle;
 	protected CharSequence htmlString;
+	protected AlertDialog dialog;
 	
 	public SignatureDialogFragment(CharSequence title, CharSequence html, CallbackContext ctx) {
 		dialogTitle = title;
@@ -65,6 +69,19 @@ public class SignatureDialogFragment extends DialogFragment {
 			ctx.success((String)null);
 			dialog.cancel();
 		}
+	}
+
+	public void toggleOkButton(final boolean enabled) {
+		final AlertDialog dialog = this.dialog;
+
+		// More nonsense to please Android and avoid the obscure
+		// message "Only the original thread that created a view
+		// hierarchy can touch its views".
+		this.getActivity().runOnUiThread(new Runnable() {
+			public void run() {
+				dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
+			}
+		});
 	}
 	
 	@Override
@@ -109,6 +126,15 @@ public class SignatureDialogFragment extends DialogFragment {
 			WebSettings setting = htmlView.getSettings();
 			setting.setJavaScriptEnabled(true);
 			setting.setDefaultTextEncodingName("utf-8");
+			htmlView.addJavascriptInterface(new SignatureDialogWebViewInterface(this),"SignatureDialog");
+			// blah, blah, blah
+			htmlView.setWebChromeClient(new WebChromeClient() {
+				public boolean onConsoleMessage(ConsoleMessage cm) {
+					Log.d("SignatureDialogFragment", cm.message() + " -- From line " + cm.lineNumber() + " of " + cm.sourceId());
+					return true;
+				}
+			});
+			
 			htmlView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null); // FAST RENDERING, PLEASE (but will be slower when using fancy effects)
 			// Nobody knows exactly how this works...
 			htmlView.loadDataWithBaseURL("file:///android_asset/www/", htmlString.toString(), "text/html", null, null);
@@ -140,10 +166,12 @@ public class SignatureDialogFragment extends DialogFragment {
 							buf.putInt(bmp.getHeight());
 							ctx.success(buf.array());
 						}
-							dialog.dismiss();
+						dialog.dismiss();
 					}
 				})
 			.create();
+		// Needed for bridge interface
+		this.dialog = dialog;
 		listener.setDialog(dialog);
 		return dialog;
 	}

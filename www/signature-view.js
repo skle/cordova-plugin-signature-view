@@ -62,10 +62,26 @@
                 '    <h3 style="margin: 0.1em 0; position: absolute; right: 0.5em; top: 0; cursor: pointer;" id="cordova.signature-view:cancel">╳</span>'+
                 '  </div>'+
                 // TODO: Find out an elegant way to automatically determine the size of the webpage, and use the rest for signature.
-                (webpage ? '<div style="height: 50%; min-height: 50%; width: 100%"><object>'+webpage+'</object></div>' : '')+
+                (webpage ? '<iframe style="height: 50%; min-height: 50%; width: 100%"></iframe>' : '')+
                 '  <div style="position: relative"><canvas style="width: 100%; min-height: '+(webpage?'50%':'100%')+'" id="cordova.signature-view:pad"></canvas></div>'+
-                '  <div><button style="width: 100%" id="cordova.signature-view:ok">ok</button></div>'+
+                '  <div><button style="width: 100%" class="enabled" id="cordova.signature-view:ok">ok</button></div>'+
                 '</div>';
+            if (webpage) {
+                var iframe = popup.querySelector('iframe');
+                iframe.addEventListener('load', function() {
+                    iframe.contentWindow.SignatureDialog = {
+                        enableOkButton: function() {
+                            okButton.className = 'enabled';
+                            okButton.addEventListener('click', okFun);
+                        },
+                        disableOkButton: function() {
+                            okButton.className = 'disabled';
+                            okButton.removeEventListener('click', okFun);
+                        },
+                    };
+                });
+                popup.querySelector('iframe').srcdoc = webpage;
+            }
             document.body.appendChild(popup);
             document.getElementById('cordova.signature-view:title').appendChild(document.createTextNode(title));
             okButton = document.getElementById('cordova.signature-view:ok');

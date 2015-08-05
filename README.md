@@ -57,7 +57,7 @@ signature pad area.  This allows you to place salient parts about the
 agreement just above the signature, which should help ensure that the
 user knows what they're signing.  The base `www` directory is
 configured as its base URI, so you can use assets from your
-application.
+application.  See below for more details.
 
 Beware when converting the image data to a data URI: some mobile
 browsers (and IE) have length limitations on data URIs.  It's better
@@ -89,3 +89,27 @@ in your HTML document which has an id of `signature`.
 		},
 		/* This final string is optional and defaults to a similar string. */
 		'Please put your signature down below');
+
+HTML page in signature view popup
+---------------------------------
+
+When showing a HTML page in your signature view popup, JavaScript is
+available.  This plugin adds a `SignatureDialog` property to `window`,
+which has two methods:
+
+	:::javascript
+	SignatureDialog.enableOkButton();
+	SignatureDialog.disableOkButton();
+
+These make the OK button clickable or unclickable, respectively.  This
+can be used to force the user to explicitly agree with the stated
+questions by ticking a checkbox, for example.  This may provide
+additional legal certainty about the user's explicit consent.
+
+In the Android version, these use the native `setEnabled()` method on
+the button to mark it as enabled/disabled.
+
+In the HTML fallback version, this will simply add 'enabled' or
+'disabled' classes to the button and disable the event handler.
+Initially the button is simply enabled.  You may want to add some
+styling for feedback that the button is unclickable.
