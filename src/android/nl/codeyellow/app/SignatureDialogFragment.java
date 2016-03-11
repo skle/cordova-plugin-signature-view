@@ -37,12 +37,14 @@ public class SignatureDialogFragment extends DialogFragment {
 	protected CallbackContext callbackContext;
 	protected CharSequence dialogTitle;
 	protected CharSequence htmlString;
+	protected CharSequence okText;
 	protected AlertDialog dialog;
-	
-	public SignatureDialogFragment(CharSequence title, CharSequence html, CallbackContext ctx) {
+
+	public SignatureDialogFragment(CharSequence title, CharSequence html, CharSequence ok, CallbackContext ctx) {
 		dialogTitle = title;
 		callbackContext = ctx;
 		htmlString = html;
+		okText = ok;
 	}
 
 	// Closures are hard, so we jump through a few hoops and do it the Java way... The moronic way
@@ -52,7 +54,7 @@ public class SignatureDialogFragment extends DialogFragment {
 	class DialogCloseListener implements View.OnClickListener {
 		public AlertDialog dialog;
 		public CallbackContext ctx;
-		
+
 		public DialogCloseListener(CallbackContext c) {
 			ctx = c;
 		}
@@ -60,7 +62,7 @@ public class SignatureDialogFragment extends DialogFragment {
 		public void setDialog(AlertDialog d) {
 			dialog = d;
 		}
-		
+
 		@Override
 		public void onClick(View view) {
 			// Signal that the user has exited, just in
@@ -83,7 +85,7 @@ public class SignatureDialogFragment extends DialogFragment {
 			}
 		});
 	}
-	
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Activity act = getActivity();
@@ -96,7 +98,7 @@ public class SignatureDialogFragment extends DialogFragment {
 		titleLabelView.setText(dialogTitle);
 		titleLabelView.setTextSize(TypedValue.COMPLEX_UNIT_MM, 5);
 		titleLabelView.setPadding(15, 0, 0, 0);
-		
+
 		TextView titleCloseView = new TextView(act);
 		titleCloseView.setText("╳");
 		titleCloseView.setTextSize(TypedValue.COMPLEX_UNIT_MM, 5);
@@ -106,7 +108,7 @@ public class SignatureDialogFragment extends DialogFragment {
 		titleCloseView.setPadding(0, 0, 15, 0);
 		DialogCloseListener listener = new DialogCloseListener(ctx);
 		titleCloseView.setOnClickListener(listener);
-		
+
 		RelativeLayout titleView = new RelativeLayout(act);
 		titleView.setGravity(Gravity.FILL_HORIZONTAL | Gravity.CENTER_VERTICAL);
 		titleView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.FILL_PARENT));
@@ -134,18 +136,30 @@ public class SignatureDialogFragment extends DialogFragment {
 					return true;
 				}
 			});
-			
+
 			htmlView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null); // FAST RENDERING, PLEASE (but will be slower when using fancy effects)
 			// Nobody knows exactly how this works...
 			htmlView.loadDataWithBaseURL("file:///android_asset/www/", htmlString.toString(), "text/html", null, null);
 			mainView.addView(htmlView);
 		}
-		
+
 		AlertDialog dialog = new AlertDialog.Builder(act)
 			.setView(mainView)
 			.setCustomTitle(titleView)
+			.setNegativeButton(
+				android.R.string.cancel,
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// Signal that the user has exited, just in
+						// case we want to perform some sort of action
+						// on the JS side.
+						ctx.success((String)null);
+						dialog.cancel();
+					}
+				})
 			.setPositiveButton(
-				android.R.string.ok,
+				okText,
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -159,7 +173,7 @@ public class SignatureDialogFragment extends DialogFragment {
 							int size = bmp.getWidth() * bmp.getHeight() * 4 + 8;
 							ByteBuffer buf = ByteBuffer.allocate(size); // BIG_ENDIAN
 							bmp.copyPixelsToBuffer(buf);
-							
+
 							// We can't put the metadata at the start because
 							// copyPixelsToBuffer() ignores buf's position...
 							buf.putInt(bmp.getWidth());

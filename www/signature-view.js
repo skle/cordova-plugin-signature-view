@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    
+
     var signature = {
         getSignature: function(successCallback, errorCallback) {
             // Are we on a cordova device (no desktop browser), and is
@@ -18,7 +18,8 @@
                 signature.getSignatureFallback.apply(signature, arguments);
             }
         },
-        getSignatureFallback: function(successCallback, errorCallback, title, webpage) {
+        getSignatureFallback: function(successCallback, errorCallback, title, webpage, okText) {
+            okText = okText || "ok";
             title = title || "Please sign below";
             var popup = document.createElement('div'),
             cleanUp = function() {
@@ -64,7 +65,7 @@
                 // TODO: Find out an elegant way to automatically determine the size of the webpage, and use the rest for signature.
                 (webpage ? '<iframe style="height: 50%; min-height: 50%; width: 100%"></iframe>' : '')+
                 '  <div style="position: relative"><canvas style="width: 100%; min-height: '+(webpage?'50%':'100%')+'" id="cordova.signature-view:pad"></canvas></div>'+
-                '  <div><button style="width: 100%" class="enabled" id="cordova.signature-view:ok">ok</button></div>'+
+                '  <div><button style="width: 100%" class="enabled" id="cordova.signature-view:ok">' + okText + '</button></div>'+
                 '</div>';
             if (webpage) {
                 var iframe = popup.querySelector('iframe');
@@ -143,14 +144,14 @@
                                 right: startX,
                                 bottom: startY
                             };
-                        
+
                         var bb = this.boundingBox; // For perf, "just in case"
 
                         for(i = 0; i < l; i++) {
                             // Force isn't available (on Android)
                             // ctx.lineWidth = p[2] * 10;
                             ctx.lineTo(p[i][0], p[i][1]);
-                            
+
                             bb.left = Math.min(bb.left, p[i][0]);
                             bb.right = Math.max(bb.right, p[i][0]);
                             bb.top = Math.min(bb.top, p[i][1]);
@@ -180,7 +181,7 @@
                 ctx.moveTo(startX, startY);
                 // TODO: Make this color configurable
                 ctx.strokeStyle = 'black';
-                
+
                 animateFrame(draw);
                 if (ev.targetTouches) {
                     canvas.addEventListener('touchmove', move, false);
