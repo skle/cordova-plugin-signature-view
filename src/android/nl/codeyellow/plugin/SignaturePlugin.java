@@ -2,7 +2,7 @@
  * A plugin for Apache Cordova (Phonegap) which will ask the user to
  * write his or her a signature, which gets captured into an image.
  *
- * Copyright (c) 2013-2014, Code Yellow B.V.
+ * Copyright (c) 2013-2016, Code Yellow B.V.
  *
  * Heavily based on Holly Schinsky's tutorial:
  * http://devgirl.org/2013/09/17/how-to-write-a-phonegap-3-0-plugin-for-android/
@@ -25,16 +25,17 @@ public class SignaturePlugin extends CordovaPlugin {
 		throws JSONException
 	{
 		if (action.equals("new")) {
-			// TODO: Make default title translatable
-			String title = "Please sign below", htmlFile = null;
-			String okText = "OK";
-			if (args.length() >= 3) okText = args.getString(2);
-			if (args.length() >= 2) htmlFile = args.getString(1);
-			if (args.length() >= 1) title = args.getString(0);
+            // The JS bridge is responsible for setting all options,
+            // and providing defaults.
+			JSONObject options = args.getJSONObject(0);
+            String okText = options.getString("okText");
+            String htmlPage = options.getString("htmlPage");
+            String title = options.getString("title");
+			float strokeWidth = (float)options.getDouble("strokeWidth");
 
 			Activity act = this.cordova.getActivity();
 			FragmentManager fragmentManager = act.getFragmentManager();
-			SignatureDialogFragment frag = new SignatureDialogFragment(title, htmlFile, okText, callbackContext);
+			SignatureDialogFragment frag = new SignatureDialogFragment(title, htmlPage, okText, strokeWidth, callbackContext);
 			frag.show(fragmentManager, "dialog");
 			return true;
 		} else {

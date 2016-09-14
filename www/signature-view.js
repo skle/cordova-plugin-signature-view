@@ -18,9 +18,25 @@
                 signature.getSignatureFallback.apply(signature, arguments);
             }
         },
-        getSignatureFallback: function(successCallback, errorCallback, title, webpage, okText) {
-            okText = okText || "ok";
-            title = title || "Please sign below";
+        getSignatureFallback: function(successCallback, errorCallback, title, htmlPage, okText) {
+            var options = {
+                okText: "OK",
+                title: "Please sign below",
+                htmlPage: null,
+                strokeWidth: 1.5,
+            };
+
+            // Backwards compatibility for positional args
+            if (typeof(title) == "string") options.title = title;
+            if (typeof(htmlPage) == "string") options.htmlPage = htmlPage;
+            if (typeof(okText) == "string") options.okText = okText;
+            // Now allow defaults in "options" to be overridden by 3rd argument
+            for(var i in options) {
+                if (title.hasOwnProperty(i)) options[i] = title[i];
+            }
+
+            this.options = options;
+
             var popup = document.createElement('div'),
             cleanUp = function() {
                 okButton.removeEventListener('click', okFun);
@@ -63,11 +79,11 @@
                 '    <h3 style="margin: 0.1em 0; position: absolute; right: 0.5em; top: 0; cursor: pointer;" id="cordova.signature-view:cancel">╳</span>'+
                 '  </div>'+
                 // TODO: Find out an elegant way to automatically determine the size of the webpage, and use the rest for signature.
-                (webpage ? '<iframe style="height: 50%; min-height: 50%; width: 100%"></iframe>' : '')+
-                '  <div style="position: relative"><canvas style="width: 100%; min-height: '+(webpage?'50%':'100%')+'" id="cordova.signature-view:pad"></canvas></div>'+
-                '  <div><button style="width: 100%" class="enabled" id="cordova.signature-view:ok">' + okText + '</button></div>'+
+                (options.htmlPage ? '<iframe style="height: 50%; min-height: 50%; width: 100%"></iframe>' : '')+
+                '  <div style="position: relative"><canvas style="width: 100%; min-height: '+(options.htmlPage?'50%':'100%')+'" id="cordova.signature-view:pad"></canvas></div>'+
+                '  <div><button style="width: 100%" class="enabled" id="cordova.signature-view:ok">' + options.okText + '</button></div>'+
                 '</div>';
-            if (webpage) {
+            if (options.htmlPage) {
                 var iframe = popup.querySelector('iframe');
                 iframe.addEventListener('load', function() {
                     iframe.contentWindow.SignatureDialog = {
@@ -81,10 +97,10 @@
                         },
                     };
                 });
-                popup.querySelector('iframe').srcdoc = webpage;
+                popup.querySelector('iframe').srcdoc = options.htmlPage;
             }
             document.body.appendChild(popup);
-            document.getElementById('cordova.signature-view:title').appendChild(document.createTextNode(title));
+            document.getElementById('cordova.signature-view:title').appendChild(document.createTextNode(options.title));
             okButton = document.getElementById('cordova.signature-view:ok');
             okButton.addEventListener('click', okFun);
             cancelButton = document.getElementById('cordova.signature-view:cancel');
@@ -181,6 +197,7 @@
                 ctx.moveTo(startX, startY);
                 // TODO: Make this color configurable
                 ctx.strokeStyle = 'black';
+                ctx.lineWidth = this.options.strokeWidth;
 
                 animateFrame(draw);
                 if (ev.targetTouches) {

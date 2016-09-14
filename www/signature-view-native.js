@@ -1,6 +1,21 @@
 var SignatureViewNative = {
-    getSignature: function(successCallback, errorCallback) {
-        var rest = Array.prototype.slice.call(arguments, 2);
+    getSignature: function(successCallback, errorCallback, title, htmlPage, okText) {
+        var options = {
+            okText: "OK",
+            title: "Please sign below",
+            htmlPage: null,
+            strokeWidth: 1.5,
+        };
+
+        // Backwards compatibility for positional args
+        if (typeof(title) == "string") options.title = title;
+        if (typeof(htmlPage) == "string") options.htmlPage = htmlPage;
+        if (typeof(okText) == "string") options.okText = okText;
+        // Now allow defaults in "options" to be overridden by 3rd argument
+        for(var i in options) {
+            if (title.hasOwnProperty(i)) options[i] = title[i];
+        }
+
         cordova.exec(function(data) {
             if (!data) {
                 return successCallback(data);
@@ -38,7 +53,7 @@ var SignatureViewNative = {
                 }
                 successCallback(imgData);
             }
-        }, errorCallback, 'Signature', 'new', rest);
+        }, errorCallback, 'Signature', 'new', [options]);
     }
 };
 module.exports = SignatureViewNative;

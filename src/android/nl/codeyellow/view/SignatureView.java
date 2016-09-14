@@ -22,8 +22,7 @@ import android.view.View;
 public class SignatureView extends View {
 
 	/** Need to track this so the dirty region can accommodate the stroke. **/
-	private float STROKE_WIDTH = 1.5f; // TODO: Make this dependent on pressure
-	private float HALF_STROKE_WIDTH = .75f;
+	private float HALF_STROKE_WIDTH;
 
 	private Paint paint = new Paint();
 	private Path path = new Path();
@@ -36,15 +35,18 @@ public class SignatureView extends View {
 	private final RectF dirtyRect = new RectF();
 	private RectF usedRect = null;
 
-	public SignatureView(Context context, AttributeSet attrs) {
+	public SignatureView(Context context, AttributeSet attrs, float strokeWidth) {
 		super(context, attrs);
+
+		HALF_STROKE_WIDTH = strokeWidth / 2.0f;
 
 		setBackgroundColor(Color.WHITE);
 		paint.setAntiAlias(true);
 		paint.setColor(Color.BLACK); // TODO: Make this configurable
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
-		paint.setStrokeWidth(STROKE_WIDTH);
+        // TODO: Make this dependent on pressure?
+		paint.setStrokeWidth(strokeWidth);
 	}
 
 	/**
@@ -64,12 +66,12 @@ public class SignatureView extends View {
 	public Bitmap getBitmap() {
 		if (usedRect == null)
 			return null;
-		
+
 		if (!isDrawingCacheEnabled())
 			buildDrawingCache();
-		
+
 		Bitmap bmp = getDrawingCache().copy(Bitmap.Config.ARGB_8888, false);
-		
+
 		if (!isDrawingCacheEnabled())
 			destroyDrawingCache();
 
@@ -129,7 +131,7 @@ public class SignatureView extends View {
 
 			// Augment the used region with the newly dirtied region
 			usedRect.union(dirtyRect);
-			
+
 			// After replaying history, connect the line to the touch point.
 			path.lineTo(eventX, eventY);
 			break;
@@ -144,7 +146,7 @@ public class SignatureView extends View {
 			(int) (dirtyRect.top - HALF_STROKE_WIDTH),
 			(int) (dirtyRect.right + HALF_STROKE_WIDTH),
 			(int) (dirtyRect.bottom + HALF_STROKE_WIDTH));
-    
+
 		lastTouchX = eventX;
 		lastTouchY = eventY;
 

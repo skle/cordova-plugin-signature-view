@@ -38,13 +38,15 @@ public class SignatureDialogFragment extends DialogFragment {
 	protected CharSequence dialogTitle;
 	protected CharSequence htmlString;
 	protected CharSequence okText;
+    protected float strokeWidth;
 	protected AlertDialog dialog;
 
-	public SignatureDialogFragment(CharSequence title, CharSequence html, CharSequence ok, CallbackContext ctx) {
+	public SignatureDialogFragment(CharSequence title, CharSequence html, CharSequence ok, float lineWidth, CallbackContext ctx) {
 		dialogTitle = title;
 		callbackContext = ctx;
 		htmlString = html;
 		okText = ok;
+        strokeWidth = lineWidth;
 	}
 
 	// Closures are hard, so we jump through a few hoops and do it the Java way... The moronic way
@@ -89,7 +91,7 @@ public class SignatureDialogFragment extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Activity act = getActivity();
-		final SignatureView signatureView = new SignatureView(act.getApplicationContext(), null);
+		final SignatureView signatureView = new SignatureView(act.getApplicationContext(), null, strokeWidth);
 		final CallbackContext ctx = callbackContext; // Silly Java
 
 		// More silliness because the order of OK / Cancel keeps tripping people up,
