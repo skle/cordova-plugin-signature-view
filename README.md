@@ -37,7 +37,7 @@ variable (a property on "window").  It provides only one method, with
 the following signature (no pun intended):
 
 	:::javascript
-	SignatureView.getSignature(success, error, [title, [htmlPage]]);
+	SignatureView.getSignature(success, error, options);
 
 The `success` argument is a callback function accepting one argument,
 which is either null (in case the user canceled the dialog) or an
@@ -48,16 +48,25 @@ The `error` argument is a callback function accepting one argument,
 which is a string containing an error message indicating what went
 wrong.
 
-The `title` argument is an optional string which indicates what the
-dialog should show as a heading.
+The `options` argument is an object which can contain the following
+keys:
 
-The `htmlPage` argument is also an optional string which supplies a
-full HTML page which will be presented in a webview above the
-signature pad area.  This allows you to place salient parts about the
-agreement just above the signature, which should help ensure that the
-user knows what they're signing.  The base `www` directory is
-configured as its base URI, so you can use assets from your
-application.  See below for more details.
+The `title` option is a string which indicates what the dialog should
+show as a heading.  The default is "Please sign below".
+
+The `htmlPage` option is also a string which supplies a full HTML page
+which will be presented in a webview above the signature pad area.
+This allows you to place salient parts about the agreement just above
+the signature, which should help ensure that the user knows what
+they're signing.  The base `www` directory is configured as its base
+URI, so you can use assets from your application.  See below for more
+details.  The default is not to show any HTML.
+
+The `okText` option is a string which defines the text that should be
+shown on the OK button.  Defaults to "OK".
+
+The `strokeWidth` option is a number which defines the width of the
+signature line.  Defaults to 1.5.
 
 Beware when converting the image data to a data URI: some mobile
 browsers (and IE) have length limitations on data URIs.  It's better
@@ -87,8 +96,9 @@ in your HTML document which has an id of `signature`.
 			/* This is the "error" callback. */
 			alert('Could not obtain a signature due to an error: '+msg);
 		},
-		/* This final string is optional and defaults to a similar string. */
-		'Please put your signature down below');
+		{
+			title: 'Please put your signature down below',
+		});
 
 HTML page in signature view popup
 ---------------------------------
