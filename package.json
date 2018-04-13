@@ -1,0 +1,20 @@
+{
+	"name": "cordova-plugin-signature-view",
+	"version": "1.0.0",
+	"description": "Native view plugin to request and capture the user's written signature.",
+	"cordova": {
+		"id": "nl.codeyellow.signature",
+		"platforms": [
+			"android"
+		]
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skle/cordova-plugin-signature-view.git"
+	},
+	"keywords": [],
+	"engines": {
+		"name": "cordova",
+		"version": ">=3.0.0"
+	}
+}
