@@ -36,7 +36,7 @@
   <!-- Using a relative target is a dirty stinking hack, but it works! -->
   <asset src="www/signature-view.js" target="js/signature-view.js" />
 
-  <dependency id="org.apache.cordova.device" />
+  <dependency id="cordova-plugin-device" />
   
   <platform name="android">
     <config-file target="res/xml/config.xml" parent="/widget">
